@@ -1,1 +1,1 @@
-# quarkus-social
+# quarkus-social udemy
