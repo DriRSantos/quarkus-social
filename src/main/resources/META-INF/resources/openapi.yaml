@@ -1,0 +1,226 @@
+openapi: 3.0.1
+info:
+  title: Quarkus-Social-API
+  description: API simulando rede social com usuários, posts e seguidores
+  version: "1.0"
+  contact:
+    url: https://github.com/drirsantos
+    name: DriRSantos
+servers:
+  - url: http://localhost:8080/quarkus-social
+    description: Dev Server
+paths:
+  /users:
+    get:
+      tags:
+        - user
+      summary: Route to get list of all users
+      description: Route responsible to show information of all users
+      responses:
+        "200":
+          $ref: "#/components/responses/200_OK"
+    post:
+      tags:
+        - user
+      summary: Route to create user profile
+      description: Route responsible to create user on quarkus-social
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        "201":
+          $ref: "#/components/responses/201"
+        "422":
+          $ref: "#/components/responses/422"
+  /users/{idUser}:
+    delete:
+      tags:
+        - user
+      summary: Route to delete a user
+      description: Route responsible to delete user account from quarkus-social
+      parameters:
+        - name: idUser
+          in: path
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "204":
+          $ref: "#/components/responses/204"
+        "404":
+          $ref: "#/components/responses/404"
+  /users/{id}:
+    put:
+      tags:
+        - user
+      summary: Update user information
+      description: Route responsible for update user name and age
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            format: int64
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        204:
+          $ref: "#/components/responses/204"
+        404:
+          $ref: "#/components/responses/404"
+  /users/{userId}/followers:
+    get:
+      tags:
+        - follower
+      summary: Get list of all followers of a user
+      description: Route responsible to show all followers from specific user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/200_OK"
+        "404":
+          $ref: "#/components/responses/404"
+    put:
+      tags:
+        - follower
+      summary: Route to follow a user
+      description: Route responsible to make a user follow other user on quarkus-social
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            format: int64
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: Long
+              $ref: '#/components/schemas/FollowerRequest'
+      responses:
+        204:
+          $ref: "#/components/responses/204"
+        "404":
+          $ref: "#/components/responses/404"
+        "409":
+          $ref: "#/components/responses/409"
+    delete:
+      tags:
+        - follower
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            format: int64
+            type: integer
+        - name: followerId
+          in: query
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/200_OK"
+  /users/{userId}/posts:
+    get:
+      tags:
+        - Post Resource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            format: int64
+            type: integer
+        - name: followerId
+          in: header
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/200_OK"
+    post:
+      tags:
+        - Post Resource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            format: int64
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePostRequest'
+        responses:
+          "200":
+            $ref: "#/components/responses/200_OK"
+components:
+  responses:
+    '200_OK':
+      description: Success
+    '201':
+      description: Created
+    '404':
+      description: Not found
+    '204':
+      description: No content
+    '409':
+      description: Conflict
+    '422':
+      description: Unprocessable entty
+schemas:
+  CreatePostRequest:
+    type: object
+    properties:
+      text:
+        type: string
+        example: Hello World
+        required: true
+  CreateUserRequest:
+    required:
+      - name
+      - age
+    type: object
+    properties:
+      name:
+        pattern: \S
+        type: string
+        example: Adriana
+        required: true
+      age:
+        format: int32
+        type: integer
+        example: 20
+        required: true
+  FollowerRequest:
+    type: object
+    properties:
+      followerId:
+        format: int64
+        type: integer
+        example: 1
+        required: true
+  securitySchemes:
+    SecurityScheme:
+      type: http
+      description: Authentication
+      scheme: basic
